@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 
 # Твоя ссылка на CSV из Google Таблицы
-SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRfhXLxZKje5vR1AZhHCMHTQiWr8ZDlKSCvmcNmnNpr2kW5wCKbRWjYbQMdQKWg6Gj3d3oEItUA26jz/pub?output=csv"
+SHEET_CSV_URL = "data.csv"
 
 def build_site():
     print("Начинаю сборку сайта...")
