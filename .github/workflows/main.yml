@@ -3,7 +3,11 @@ name: Update Site via SFTP
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *'
+    # Время в UTC (МСК минус 3 часа): 08:00, 10:20, 13:00, 15:00
+    - cron: '0 8 * * *'   # 11:00 МСК
+    - cron: '20 10 * * *' # 13:20 МСК
+    - cron: '0 13 * * *'  # 16:00 МСК
+    - cron: '0 15 * * *'  # 18:00 МСК
 
 jobs:
   deploy:
@@ -30,6 +34,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 2222
-          local_path: './index.html'
+          # Загружаем и index.html, и sitemap.xml
+          local_path: './*' 
           remote_path: '/'
           sftp_only: true
