@@ -1,0 +1,38 @@
+name: Update Site via FTP
+
+on:
+  schedule:
+    - cron: '0 */2 * * *' # Авто-запуск каждые 6 часов
+  workflow_dispatch:      # Позволяет запустить вручную кнопкой
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install pandas requests
+
+      - name: Run update script
+        run: python update.py
+
+      - name: Sync files to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: ./public_html/ # Убедитесь, что это путь к папке вашего сайта
+          exclude: |
+            **/.git*
+            **/.github*
+            update.py
+            README.md
