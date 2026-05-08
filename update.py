@@ -1,41 +1,45 @@
 import pandas as pd
-import requests
+import os
 
-# ВСТАВЬТЕ ВАШУ ССЫЛКУ МЕЖДУ КАВЫЧЕК
-SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRfhXLxZKje5vR1AZhHCMHTQiWr8ZDlKSCvmcNmnNpr2kW5wCKbRWjYbQMdQKWg6Gj3d3oEItUA26jz/pub?output=csv"
+# Твоя ссылка на CSV из Google Таблицы
+SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRfhXLxZkje5vR1AZhCHMHTQiwr8ZDlKSVmcNmnNpr2kW5WCkBrWjYbqMDQkWg6Gj3d3oEiTUA26jz/pub?output=csv"
 
 def build_site():
     try:
-        # Читаем данные
+        # Читаем таблицу
         df = pd.read_csv(SHEET_CSV_URL)
         
-        # Начало HTML файла
+        # Убираем пробелы из названий колонок на случай случайных ошибок
+        df.columns = df.columns.str.strip()
+        
+        # Формируем чистый HTML
         html = "<!DOCTYPE html><html lang='ru'><head><meta charset='UTF-8'>"
-        html += "<title>hesay.ru — Обзоры и статьи</title>"
+        html += "<title>hesay.ru — Мой Блог</title>"
         html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
-        html += "</head><body style='font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px;'>"
-        html += "<h1>Последние публикации</h1><hr><ul>"
+        html += "</head><body style='font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6;'>"
+        html += "<h1>Последние статьи</h1><hr><ul>"
         
         for _, row in df.iterrows():
-            # Заменяем пустые значения на пустую строку, если они есть
-            title = str(row['Заголовок'])
-            link = str(row['Ссылка'])
-            desc = str(row['Анонс'])
+            # Безопасное получение данных из колонок
+            title = str(row.get('Заголовок', 'Без названия'))
+            link = str(row.get('Ссылка', '#'))
+            desc = str(row.get('Анонс', ''))
             
-            html += f"<li style='margin-bottom: 30px;'>"
-            html += f"<h2><a href='{link}' style='text-decoration: none; color: #1a73e8;'>{title}</a></h2>"
-            html += f"<p style='color: #444; line-height: 1.6;'>{desc}</p>"
+            html += f"<li style='margin-bottom: 25px; list-style: none;'>"
+            html += f"<h2><a href='{link}' style='color: #007bff; text-decoration: none;'>{title}</a></h2>"
+            html += f"<p style='color: #555;'>{desc}</p>"
             html += f"</li>"
         
         html += "</ul></body></html>"
         
-        # Сохраняем файл локально в репозитории
+        # Записываем файл
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html)
-        print("Файл index.html успешно создан")
+            
+        print("Файл index.html успешно создан в корне репозитория")
         
     except Exception as e:
-        print(f"Произошла ошибка: {e}")
+        print(f"Ошибка при создании HTML: {e}")
 
 if __name__ == "__main__":
     build_site()
