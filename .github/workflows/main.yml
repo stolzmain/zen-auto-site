@@ -1,12 +1,12 @@
-name: Update Site
+name: Update Site via SFTP
 
 on:
-  workflow_dispatch:      # Кнопка запуска
+  workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *' # Авто-проверка каждые 2 часа
+    - cron: '0 */2 * * *'
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,13 +23,13 @@ jobs:
       - name: Run update script
         run: python update.py
 
-      - name: Sync files to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Sync files via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: public_html/
-          port: 21
-          dangerous-clean-slate: false
+          port: 2222
+          local_path: './index.html'
+          remote_path: '/'
+          sftp_only: true
