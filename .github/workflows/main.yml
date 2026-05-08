@@ -1,9 +1,9 @@
-name: Update Site via FTP
+name: Update Site
 
 on:
+  workflow_dispatch:      # Это добавит ту самую кнопку запуска
   schedule:
-    - cron: '0 */2 * * *' # Запуск каждые 2 часов
-  workflow_dispatch:      # Позволяет запустить вручную кнопкой
+    - cron: '0 */2 * * *' # Авто-проверка каждые 2 часа
 
 jobs:
   build-and-deploy:
@@ -18,25 +18,18 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install pandas requests
+        run: pip install pandas
 
       - name: Run update script
         run: python update.py
 
       - name: Sync files to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-       with:
+        with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: public_html/
+          server-dir: /
           protocol: ftp
           port: 21
-          # Включаем пассивный режим — это помогает при Timeout
-          state-name: .ftp-deploy-sync-state.json
-          exclude: |
-            **/.git*
-            **/.github*
-            update.py
-            README.md
