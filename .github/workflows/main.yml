@@ -1,4 +1,4 @@
-name: Update Site via SFTP
+name: Update Site
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
     - cron: '0 15 * * *'  # 18:00 МСК
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,14 +27,19 @@ jobs:
       - name: Run update script
         run: python update.py
 
-      - name: Sync files via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: Sync files to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          username: ${{ secrets.FTP_USERNAME }}
           server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 2222
-          # Загружаем и index.html, и sitemap.xml
-          local_path: './*' 
-          remote_path: '/'
-          sftp_only: true
+          local-dir: ./
+          server-dir: /
+          port: 21
+          # Исключаем лишние файлы, чтобы не нагружать сервер
+          exclude: |
+            **/.git*
+            **/.github*
+            update.py
+            data.csv
+            README.md
