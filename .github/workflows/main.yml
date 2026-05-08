@@ -2,8 +2,8 @@ name: Update Site via FTP
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # Авто-запуск каждые 2 часа
-  workflow_dispatch:      # Кнопка для ручного запуска
+    - cron: '0 */2 * * *' # Запуск каждые 2 часов
+  workflow_dispatch:      # Позволяет запустить вручную кнопкой
 
 jobs:
   build-and-deploy:
@@ -30,14 +30,9 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          # Для Jino, так как аккаунт уже смотрит в папку домена
-          server-dir: /
-          protocol: ftp
-          port: 21
-          # Исключаем служебные файлы, чтобы не мусорить на хостинге
+          server-dir: / # ПРОВЕРЬТЕ ПУТЬ К ПАПКЕ САЙТА (может быть www или /)
           exclude: |
             **/.git*
             **/.github*
             update.py
             README.md
-            requirements.txt
