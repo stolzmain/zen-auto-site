@@ -2,7 +2,7 @@ name: Update Site via FTP
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # Авто-запуск каждые 6 часов
+    - cron: '0 */2 * * *' # Авто-запуск каждые 2 часов
   workflow_dispatch:      # Позволяет запустить вручную кнопкой
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: ./public_html/ # Убедитесь, что это путь к папке вашего сайта
+          server-dir: /
           exclude: |
             **/.git*
             **/.github*
