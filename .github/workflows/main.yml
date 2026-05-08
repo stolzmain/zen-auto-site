@@ -25,15 +25,16 @@ jobs:
 
       - name: Sync files to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
+       with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: / # ПРОВЕРЬТЕ ПУТЬ К ПАПКЕ САЙТА (может быть www или /)
-        # Используем ftps (защищенный FTP), так как обычный ftp часто блокируется
-          protocol: ftps
+          server-dir: public_html/
+          protocol: ftp
           port: 21
+          # Включаем пассивный режим — это помогает при Timeout
+          state-name: .ftp-deploy-sync-state.json
           exclude: |
             **/.git*
             **/.github*
