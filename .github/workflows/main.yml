@@ -31,9 +31,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: / # ПРОВЕРЬТЕ ПУТЬ К ПАПКЕ САЙТА (может быть www или /)
-          # Переключаемся на современный и быстрый SFTP
-          protocol: sftp
-          port: 2222
+        # Используем ftps (защищенный FTP), так как обычный ftp часто блокируется
+          protocol: ftps
+          port: 21
           exclude: |
             **/.git*
             **/.github*
