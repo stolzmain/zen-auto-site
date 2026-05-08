@@ -1,11 +1,13 @@
 import pandas as pd
+from datetime import datetime
 
 def build_site():
     try:
-        # Читаем данные
+        # 1. Читаем данные из CSV
         df = pd.read_csv("data.csv")
         df.columns = df.columns.str.strip()
         
+        # 2. Генерируем index.html
         html = "<!DOCTYPE html><html lang='ru'><head><meta charset='UTF-8'>"
         html += "<title>hesay.ru — Статьи в Дзене</title>"
         html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
@@ -27,7 +29,6 @@ def build_site():
             html += f"<li>"
             html += f"<a href='{link}' class='title' target='_blank'>{title}</a>"
             html += f"<p>{desc}</p>"
-            # ВОТ ОНА — КНОПКА «ЧИТАТЬ ДАЛЕЕ»
             html += f"<a href='{link}' class='read-more' target='_blank'>Читать далее →</a>"
             html += f"</li>"
         
@@ -35,7 +36,23 @@ def build_site():
         
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html)
-        print("Файл index.html успешно обновлен с кнопками!")
+        print("Файл index.html успешно обновлен!")
+
+        # 3. Генерируем sitemap.xml автоматически
+        now = datetime.now().strftime('%Y-%m-%d')
+        sitemap_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://hesay.ru/</loc>
+    <lastmod>{now}</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>'''
+        with open("sitemap.xml", "w", encoding="utf-8") as f:
+            f.write(sitemap_content)
+        print(f"Sitemap обновлен датой: {now}")
+
     except Exception as e:
         print(f"Ошибка: {e}")
 
