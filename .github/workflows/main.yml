@@ -2,8 +2,8 @@ name: Update Site via FTP
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # Авто-запуск каждые 2 часов
-  workflow_dispatch:      # Позволяет запустить вручную кнопкой
+    - cron: '0 */2 * * *' # Проверка каждые 2 часа
+  workflow_dispatch:      # Кнопка для ручного запуска
 
 jobs:
   build-and-deploy:
@@ -30,11 +30,14 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: public_html/
+          # ВАЖНО: без точек и слешей в начале. Просто название папки
+          server-dir: public_html
           protocol: ftp
           port: 21
+          # Исключаем служебные файлы, чтобы на хостинге был только index.html
           exclude: |
             **/.git*
             **/.github*
             update.py
             README.md
+            requirements.txt
