@@ -1,7 +1,7 @@
 name: Update Site
 
 on:
-  workflow_dispatch:      # Это добавит ту самую кнопку запуска
+  workflow_dispatch:      # Кнопка запуска
   schedule:
     - cron: '0 */2 * * *' # Авто-проверка каждые 2 часа
 
@@ -25,12 +25,11 @@ jobs:
 
       - name: Sync files to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-       with:
+        with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: public_html/
-          # Эти настройки критичны для Jino:
           port: 21
           dangerous-clean-slate: false
