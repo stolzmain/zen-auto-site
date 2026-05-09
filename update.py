@@ -67,7 +67,7 @@ def build_site():
         
         html += "</head><body>"
 
-        # Добавляем информер курса в самое начало body
+        # Обновленный блок информера с надежным API
         html += """
         <div style="background: #1a1a1a; color: #fff; padding: 10px 0; text-align: center; font-size: 0.9em; border-bottom: 1px solid #333;">
             <div id="btc-price-container">
@@ -78,16 +78,24 @@ def build_site():
         <script>
             async function getBTCPrice() {
                 try {
-                    const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+                    // Используем CoinGecko API - оно более стабильное
+                    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
                     const data = await response.json();
-                    const price = parseFloat(data.bpi.USD.rate_float).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-                    document.getElementById('btc-price').innerText = price;
+                    const price = data.bitcoin.usd;
+                    
+                    const formattedPrice = new Intl.NumberFormat('en-US', { 
+                        style: 'currency', 
+                        currency: 'USD' 
+                    }).format(price);
+                    
+                    document.getElementById('btc-price').innerText = formattedPrice;
                 } catch (error) {
-                    document.getElementById('btc-price').innerText = 'недоступен';
+                    console.error('Ошибка API:', error);
+                    document.getElementById('btc-price').innerText = 'обновляется...';
                 }
             }
             getBTCPrice();
-            setInterval(getBTCPrice, 60000); // Обновлять раз в минуту
+            setInterval(getBTCPrice, 60000); // Обновление раз в минуту
         </script>
         """
         
