@@ -68,15 +68,15 @@ def build_site():
         
         html += "</head><body>"
 
-        # Обновленный блок информера: Курс BTC + Социальное доказательство
+        # Обновленный блок информера: Исправлены скругления углов
         html += """
-        <div style="background: #1a1a1a; color: #fff; padding: 10px 0; text-align: center; font-size: 0.9em; border-bottom: 1px solid #333;">
-            <div id="btc-price-container" style="margin-bottom: 5px;">
+        <div style="background: #1a1a1a; color: #fff; padding: 15px 0 10px 0; text-align: center; font-size: 0.9em; border-radius: 12px 12px 0 0; border-bottom: 1px solid #333; margin-bottom: -1px; position: relative; z-index: 2;">
+            <div id="btc-price-container" style="margin-bottom: 7px; font-weight: 500;">
                 ₿ Bitcoin (BTC): <span id="btc-price" style="color: #f2a900; font-weight: bold;">Загрузка...</span>
             </div>
             <div style="font-size: 0.85em; color: #bbb;">
                 📢 Активных подписчиков по RSS: <span style="color: #fff; font-weight: bold;">14 796</span> 
-                | <a href="/rss.xml" target="_blank" style="color: #d32f2f; text-decoration: none; font-weight: bold;">[ Подписаться ]</a>
+                | <a href="/rss.xml" target="_blank" style="color: #d32f2f; text-decoration: none; font-weight: bold; border-bottom: 1px dashed #d32f2f;">[ Подписаться ]</a>
             </div>
         </div>
         
