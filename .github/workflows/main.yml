@@ -3,11 +3,8 @@ name: Update Site
 on:
   workflow_dispatch:
   schedule:
-    # Время в UTC (МСК минус 3 часа): 08:00, 10:20, 13:00, 15:00
-    - cron: '0 8 * * *'   # 11:00 МСК
-    - cron: '20 10 * * *' # 13:20 МСК
-    - cron: '0 13 * * *'  # 16:00 МСК
-    - cron: '0 15 * * *'  # 18:00 МСК
+    # Запуск в начале каждого второго часа (00:00, 02:00, 04:00 и т.д. по UTC)
+    - cron: '0 */2 * * *'
 
 jobs:
   build-and-deploy:
@@ -34,9 +31,9 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: /
+          # Если на Jino файлы должны лежать в public_html, лучше указать это явно
+          server-dir: public_html/ 
           port: 21
-          # Исключаем лишние файлы, чтобы не нагружать сервер
           exclude: |
             **/.git*
             **/.github*
