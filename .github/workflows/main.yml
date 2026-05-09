@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           # Если на Jino файлы должны лежать в public_html, лучше указать это явно
-          server-dir: public_html/ 
+          server-dir: / 
           port: 21
           exclude: |
             **/.git*
