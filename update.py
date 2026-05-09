@@ -7,10 +7,10 @@ def build_site():
         df = pd.read_csv("data.csv")
         df.columns = df.columns.str.strip()
         
-        # Оптимизированный набор тем (теги)
+        # Набор тем (теги)
         TAGS = ["бизнес", "финансы", "инвестиции", "психология", "криптовалюта", "трейдинг"]
         
-        # SEO настройки (улучшено для Google и Яндекса)
+        # SEO настройки
         SITE_TITLE = "Бизнес, Финансы и Трейдинг — аналитика и стратегии"
         PAGE_H1 = "Бизнес, финансы и трейдинг: аналитика"
         SITE_DESC = "Актуальные обзоры рынков, стратегии инвестирования и психология успеха. Свежие статьи из Дзена 4 раза в день."
@@ -28,11 +28,9 @@ def build_site():
         html += f"<meta name='description' content='{SITE_DESC}'>"
         html += f"<meta name='keywords' content='{SITE_KEYWORDS}'>"
         html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
-        
-        # Каноническая ссылка (Google очень любит это для исключения дублей)
         html += f"<link rel='canonical' href='{SITE_URL}'>"
         
-        # Open Graph для Google Discover и соцсетей
+        # Open Graph
         html += f"<meta property='og:title' content='{SITE_TITLE}'>"
         html += f"<meta property='og:description' content='{SITE_DESC}'>"
         html += f"<meta property='og:url' content='{SITE_URL}'>"
@@ -41,7 +39,7 @@ def build_site():
         # Фавикон
         html += "<link rel='icon' href='favicon.ico' type='image/x-icon'>"
         
-        # Стили
+        # Стили (Исправлены для отображения футера)
         html += """
         <style>
             body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width:750px; margin:40px auto; padding:20px; line-height:1.6; color:#333; background:#f0f2f5;}
@@ -54,13 +52,18 @@ def build_site():
             a.title{color:#000; text-decoration:none; font-size:1.4em; font-weight:bold; display:block; margin-bottom:12px;}
             a.title:hover{color:#d32f2f;}
             .read-more{display:inline-block; margin-top:10px; color:#d32f2f; text-decoration:none; font-weight:bold; border:2px solid #d32f2f; padding:6px 18px; border-radius:6px;}
-            .footer-section{padding: 25px 35px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);}
-            .footer-links{display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;}
-            .footer-btn{background:#222; color:#fff !important; padding:10px 20px; text-decoration:none; border-radius:8px; font-size:0.9em; font-weight:bold;}
+            
+            /* Стили футера - ГАРАНТИРОВАННАЯ ВИДИМОСТЬ */
+            .footer-section{padding: 25px 35px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-top: 20px; display: block !important;}
+            .footer-links{display: flex; gap: 12px; flex-wrap: wrap; margin-top: 15px; visibility: visible !important;}
+            .footer-btn{background: #222; color: #fff !important; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 0.9em; font-weight: bold; display: inline-block !important; transition: 0.2s;}
+            .footer-btn:hover{background: #d32f2f; color: #fff !important;}
         </style>
         """
         
         html += "</head><body>"
+        
+        # Основной блок со статьями
         html += "<div class='container'>"
         html += f"<h1>{PAGE_H1}</h1>"
         html += "<div class='tags-cloud'>"
@@ -77,16 +80,23 @@ def build_site():
                 html += f"<p>{desc}</p>"
                 html += f"<a href='{link}' class='read-more' target='_blank'>Читать полностью →</a></li>"
         
-        html += "</ul></div>"
-        html += "<div class='footer-section'><strong>Другие проекты:</strong><div class='footer-links'>"
+        html += "</ul></div>" # Закрываем container
+        
+        # Отдельный блок футера (Другие проекты)
+        html += "<div class='footer-section'>"
+        html += "<strong>Другие проекты:</strong>"
+        html += "<div class='footer-links'>"
         html += "<a href='https://dzen.ru/mindbug' class='footer-btn' target='_blank'>🧠 Психология</a>"
         html += "<a href='https://dzen.ru/2mom' class='footer-btn' target='_blank'>🤱 Мамам</a>"
-        html += "</div></div></body></html>"
+        html += "</div></div>"
         
+        html += "</body></html>"
+        
+        # Сохранение index.html
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html)
 
-        # 3. Sitemap.xml (Универсально для Google/Yandex)
+        # 3. Sitemap.xml
         now = datetime.now().strftime('%Y-%m-%d')
         sitemap_content = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -100,7 +110,7 @@ def build_site():
         with open("sitemap.xml", "w", encoding="utf-8") as f:
             f.write(sitemap_content)
 
-        # 4. Robots.txt (Оптимизировано для обоих гигантов)
+        # 4. Robots.txt
         robots_content = f'''User-agent: *
 Allow: /
 Sitemap: {SITE_URL}sitemap.xml
@@ -115,7 +125,7 @@ Clean-param: share_to
         with open("robots.txt", "w", encoding="utf-8") as f:
             f.write(robots_content)
             
-        print("Сайт успешно оптимизирован для Google и Яндекса!")
+        print("Сайт успешно обновлен и оптимизирован!")
 
     except Exception as e:
         print(f"Ошибка: {e}")
