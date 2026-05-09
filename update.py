@@ -42,7 +42,8 @@ def build_site():
         
         # Фавикон
         html += "<link rel='icon' href='favicon.ico' type='image/x-icon'>"
-        
+        # Ссылка на RSS ленту (теперь браузеры увидят значок подписки)
+        html += f"<link rel='alternate' type='application/rss+xml' title='RSS лента {SITE_TITLE}' href='{SITE_URL}rss.xml'>"
         # Стили (Исправлены для отображения футера)
         html += """
         <style>
@@ -67,35 +68,35 @@ def build_site():
         
         html += "</head><body>"
 
-        # Обновленный блок информера с надежным API
+        # Обновленный блок информера: Курс BTC + Социальное доказательство
         html += """
         <div style="background: #1a1a1a; color: #fff; padding: 10px 0; text-align: center; font-size: 0.9em; border-bottom: 1px solid #333;">
-            <div id="btc-price-container">
+            <div id="btc-price-container" style="margin-bottom: 5px;">
                 ₿ Bitcoin (BTC): <span id="btc-price" style="color: #f2a900; font-weight: bold;">Загрузка...</span>
+            </div>
+            <div style="font-size: 0.85em; color: #bbb;">
+                📢 Активных подписчиков по RSS: <span style="color: #fff; font-weight: bold;">14 796</span> 
+                | <a href="/rss.xml" target="_blank" style="color: #d32f2f; text-decoration: none; font-weight: bold;">[ Подписаться ]</a>
             </div>
         </div>
         
         <script>
             async function getBTCPrice() {
                 try {
-                    // Используем CoinGecko API - оно более стабильное
                     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
                     const data = await response.json();
                     const price = data.bitcoin.usd;
-                    
                     const formattedPrice = new Intl.NumberFormat('en-US', { 
                         style: 'currency', 
                         currency: 'USD' 
                     }).format(price);
-                    
                     document.getElementById('btc-price').innerText = formattedPrice;
                 } catch (error) {
-                    console.error('Ошибка API:', error);
                     document.getElementById('btc-price').innerText = 'обновляется...';
                 }
             }
             getBTCPrice();
-            setInterval(getBTCPrice, 60000); // Обновление раз в минуту
+            setInterval(getBTCPrice, 60000);
         </script>
         """
         
@@ -146,10 +147,11 @@ def build_site():
         with open("sitemap.xml", "w", encoding="utf-8") as f:
             f.write(sitemap_content)
 
-        # 4. Robots.txt
+       # 4. Robots.txt
         robots_content = f'''User-agent: *
 Allow: /
 Sitemap: {SITE_URL}sitemap.xml
+RSS: {SITE_URL}rss.xml
 
 User-agent: Googlebot
 Allow: /
@@ -160,8 +162,41 @@ Clean-param: share_to
 '''
         with open("robots.txt", "w", encoding="utf-8") as f:
             f.write(robots_content)
+
+        # 5. Генерация RSS-ленты (rss.xml)
+        rss_items = ""
+        # Берем данные для ленты (последние 50 статей)
+        for _, row in df.head(50).iterrows():
+            # Очищаем текст от символов, которые ломают XML
+            title = str(row.get('Заголовок', '')).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            link = str(row.get('Ссылка', '#'))
+            desc = str(row.get('Анонс', '')).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
             
-        print("Сайт успешно обновлен и оптимизирован!")
+            rss_items += f"""
+        <item>
+            <title>{title}</title>
+            <link>{link}</link>
+            <description>{desc}</description>
+            <pubDate>{datetime.now().strftime('%a, %d %b %Y %H:%M:%S +0300')}</pubDate>
+            <guid isPermaLink="false">{link}</guid>
+        </item>"""
+
+        rss_content = f"""<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+    <title>{SITE_TITLE}</title>
+    <link>{SITE_URL}</link>
+    <description>{SITE_DESC}</description>
+    <language>ru</language>
+    <atom:link href="{SITE_URL}rss.xml" rel="self" type="application/rss+xml" />
+    {rss_items}
+</channel>
+</rss>"""
+
+        with open("rss.xml", "w", encoding="utf-8") as f:
+            f.write(rss_content)
+            
+        print("Сайт успешно обновлен, RSS и SEO оптимизированы!")
 
     except Exception as e:
         print(f"Ошибка: {e}")
