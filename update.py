@@ -7,14 +7,18 @@ def build_site():
         df = pd.read_csv("data.csv")
         df.columns = df.columns.str.strip()
         
-        # Набор тем (теги)
-        TAGS = ["бизнес", "финансы", "инвестиции", "психология", "криптовалюта", "трейдинг"]
+        # Теги, которые чаще всего ищут новички
+        TAGS = ["база", "японские свечи", "графический анализ", "основы трейдинга", "психология", "криптовалюта"]
         
-        # SEO настройки
-        SITE_TITLE = "Бизнес, Финансы и Трейдинг — аналитика и стратегии"
-        PAGE_H1 = "Бизнес, финансы и трейдинг: аналитика"
-        SITE_DESC = "Актуальные обзоры рынков, стратегии инвестирования и психология успеха. Свежие статьи из Дзена 4 раза в день."
-        SITE_KEYWORDS = ", ".join(TAGS) + ", аналитика рынка"
+        # Название сайта как справочника
+        SITE_TITLE = "Жить стабильно — Азбука начинающего трейдера и база знаний"
+        PAGE_H1 = "Азбука трейдинга: база знаний для начинающих"
+        
+        # Описание (SITE_DESC) — бьем точно в запросы новичков
+        SITE_DESC = "Понятный справочник по трейдингу для новичков. Учимся читать японские свечи, разбираем графический анализ и психологию рынка простыми словами без лишней воды."
+        
+        # Ключевые слова (SITE_KEYWORDS) — запросы, которые люди вбивают в поиск
+        SITE_KEYWORDS = "трейдинг для начинающих, как читать японские свечи, графический анализ с нуля, основы биржевой торговли, база знаний трейдера, азбука инвестирования"
         SITE_URL = "https://hesay.ru/"
         
         # 2. Генерируем index.html
@@ -62,6 +66,30 @@ def build_site():
         """
         
         html += "</head><body>"
+
+        # Добавляем информер курса в самое начало body
+        html += """
+        <div style="background: #1a1a1a; color: #fff; padding: 10px 0; text-align: center; font-size: 0.9em; border-bottom: 1px solid #333;">
+            <div id="btc-price-container">
+                ₿ Bitcoin (BTC): <span id="btc-price" style="color: #f2a900; font-weight: bold;">Загрузка...</span>
+            </div>
+        </div>
+        
+        <script>
+            async function getBTCPrice() {
+                try {
+                    const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+                    const data = await response.json();
+                    const price = parseFloat(data.bpi.USD.rate_float).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                    document.getElementById('btc-price').innerText = price;
+                } catch (error) {
+                    document.getElementById('btc-price').innerText = 'недоступен';
+                }
+            }
+            getBTCPrice();
+            setInterval(getBTCPrice, 60000); // Обновлять раз в минуту
+        </script>
+        """
         
         # Основной блок со статьями
         html += "<div class='container'>"
