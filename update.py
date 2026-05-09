@@ -8,7 +8,7 @@ def build_site():
         df.columns = df.columns.str.strip()
         
         # Теги, которые чаще всего ищут новички
-        TAGS = ["база", "японские свечи", "графический анализ", "основы трейдинга", "психология", "криптовалюта"]
+        TAGS = ["японские свечи", "графический анализ", "основы трейдинга", "психология", "криптовалюта"]
         
         # Название сайта как справочника
         SITE_TITLE = "Жить стабильно — Азбука начинающего трейдера и база знаний"
@@ -47,7 +47,7 @@ def build_site():
         # Стили (Исправлены для отображения футера)
         html += """
         <style>
-            body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width:750px; margin:40px auto; padding:20px; line-height:1.6; color:#333; background:#f0f2f5;}
+            body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width:920px; margin:40px auto; padding:20px; line-height:1.6; color:#333; background:#f0f2f5;}
             .container{background:#fff; padding:35px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin-bottom: 20px;}
             h1{margin-top:0; font-size:2.1em; color:#1a1a1a; border-bottom: 3px solid #d32f2f; padding-bottom: 10px;}
             .tags-cloud{margin:20px 0 30px 0; display:flex; flex-wrap:wrap; gap:8px;}
