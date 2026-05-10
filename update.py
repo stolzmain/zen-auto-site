@@ -10,25 +10,22 @@ def build_site():
         
         SITE_URL = "https://hesay.ru/"
         SITE_TITLE = "Жить стабильно — Азбука начинающего трейдера и база знаний"
-        SITE_DESC = "Понятный справочник по трейдингу для новичков. Учимся читать японские свечи, разбираем графический анализ и психологию рынка простыми словами."
+        SITE_DESC = "Понятный справочник по трейдингу для новичков. Учимся читать японские свечи, разбираем графический анализ и психологию рынка."
         SITE_KEYWORDS = "трейдинг для начинающих, как читать японские свечи, графический анализ, база знаний трейдера"
         INDEXNOW_KEY = "7252fab850c345419d3109a8f718aaad"
 
         # --- ЛОГИКА ПОСТЕПЕННОГО ВЫПУСКА ---
-        # Точка отсчета (когда ты загрузила пачку статей)
-        # Установили на 10 мая 2026, 20:00 (твое текущее время)
+        # Точка отсчета (когда ты загрузила первую пачку статей)
         START_DATE = datetime(2026, 5, 10, 20, 0) 
-        HOURS_STEP = 2 # Выпускать по 1 новой статье каждые 2 часа
+        HOURS_STEP = 2 # Интервал появления новых статей (в часах)
         
-        # Считаем разницу во времени
+        # Считаем, сколько статей "созрело" на текущий момент
         time_diff = datetime.now() - START_DATE
         hours_passed = time_diff.total_seconds() / 3600
-        
-        # Сколько строк из CSV уже можно показать (минимум 1)
         visible_count = max(1, int(hours_passed / HOURS_STEP) + 1)
         
-        # Берем только разрешенные строки
-        df_visible = df.head(visible_count)
+        # Берем нужное кол-во строк и переворачиваем их (новые сверху)
+        df_visible = df.head(visible_count).iloc[::-1]
         # -----------------------------------
         
         # 2. Формируем HTML
@@ -107,7 +104,6 @@ def build_site():
         html += "<div class='container'>"
         html += f"<h1>Азбука трейдинга: база знаний</h1><ul>"
         
-        # Выводим только видимые статьи
         for _, row in df_visible.iterrows():
             t, l, d = str(row.get('Заголовок','')), str(row.get('Ссылка','#')), str(row.get('Анонс',''))
             if t:
@@ -120,18 +116,13 @@ def build_site():
         html += "<a href='https://dzen.ru/2mom' class='footer-btn'>🤱 Мамам</a>"
         html += "</div></div></body></html>"
         
+        # Запись файлов
         with open("index.html", "w", encoding="utf-8") as f: f.write(html)
-
-        # 3. Технические файлы (Sitemap, RSS, Robots)
-        s_now = datetime.now().strftime('%Y-%m-%d')
+        
         with open("robots.txt", "w", encoding="utf-8") as f:
             f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}sitemap.xml\nRSS: {SITE_URL}rss.xml")
 
-        # Sitemap (только для видимых страниц)
-        sitemap_content = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>{SITE_URL}</loc><lastmod>{s_now}</lastmod><changefreq>hourly</changefreq><priority>1.0</priority></url></urlset>'
-        with open("sitemap.xml", "w", encoding="utf-8") as f: f.write(sitemap_content)
-
-        # RSS (только для видимых страниц)
+        # RSS и Sitemap только для видимых статей
         rss_items = ""
         for _, row in df_visible.head(50).iterrows():
             clean_t = str(row.get('Заголовок','')).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
@@ -140,7 +131,11 @@ def build_site():
         with open("rss.xml", "w", encoding="utf-8") as f:
             f.write(f'<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>{SITE_TITLE}</title><link>{SITE_URL}</link>{rss_items}</channel></rss>')
 
-        # 4. Уведомление Bing (IndexNow)
+        s_now = datetime.now().strftime('%Y-%m-%d')
+        sitemap_content = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>{SITE_URL}</loc><lastmod>{s_now}</lastmod><changefreq>hourly</changefreq><priority>1.0</priority></url></urlset>'
+        with open("sitemap.xml", "w", encoding="utf-8") as f: f.write(sitemap_content)
+
+        # 4. Уведомление поисковиков
         requests.post("https://www.bing.com/indexnow", json={
             "host": "hesay.ru",
             "key": INDEXNOW_KEY,
@@ -148,7 +143,7 @@ def build_site():
             "urlList": [SITE_URL]
         })
         
-        print(f"Сайт обновлен! Сейчас опубликовано статей: {len(df_visible)}")
+        print(f"Сайт обновлен! Опубликовано статей: {len(df_visible)}")
 
     except Exception as e: print(f"Ошибка: {e}")
 
