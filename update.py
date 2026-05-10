@@ -44,8 +44,6 @@ def build_site():
                 position: relative; z-index: 1;
             }
             h1{margin-top:0; font-size:2.1em; color:#1a1a1a; border-bottom: 3px solid #d32f2f; padding-bottom: 10px;}
-            .tags-cloud{margin:20px 0 30px 0; display:flex; flex-wrap:wrap; gap:8px;}
-            .tag{background:#e8f0fe; color:#1967d2; padding:4px 12px; border-radius:15px; font-size:0.85em;}
             ul{list-style:none; padding:0;} 
             li{margin-bottom:45px; border-bottom:1px solid #f0f0f0; padding-bottom:30px;}
             a.title{color:#000; text-decoration:none; font-size:1.4em; font-weight:bold; display:block; margin-bottom:12px;}
@@ -104,20 +102,32 @@ def build_site():
         html += "<a href='https://dzen.ru/2mom' class='footer-btn'>🤱 Мамам</a>"
         html += "</div></div></body></html>"
         
+        # Запись index.html
         with open("index.html", "w", encoding="utf-8") as f: f.write(html)
 
-        # 3. RSS и технические файлы
-        with open("robots.txt", "w") as f: f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}sitemap.xml\nRSS: {SITE_URL}rss.xml")
-        
+        # 3. Robots.txt
+        with open("robots.txt", "w", encoding="utf-8") as f:
+            f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}sitemap.xml\nRSS: {SITE_URL}rss.xml")
+
+        # 4. RSS.xml
         rss_items = ""
         for _, row in df.head(50).iterrows():
-            title = str(row.get('Заголовок','')).replace('&','&amp;')
-            rss_items += f"<item><title>{title}</title><link>{row.get('Ссылка')}</link><description>{row.get('Анонс')}</description></item>"
+            clean_t = str(row.get('Заголовок','')).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
+            clean_d = str(row.get('Анонс','')).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
+            rss_items += f"<item><title>{clean_t}</title><link>{row.get('Ссылка')}</link><description>{clean_d}</description></item>"
         
         with open("rss.xml", "w", encoding="utf-8") as f:
             f.write(f'<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>{SITE_TITLE}</title><link>{SITE_URL}</link>{rss_items}</channel></rss>')
 
-        # 4. Уведомление Bing (IndexNow)
+        # 5. Sitemap.xml
+        s_now = datetime.now().strftime('%Y-%m-%d')
+        sitemap_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>{SITE_URL}</loc><lastmod>{s_now}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+</urlset>'''
+        with open("sitemap.xml", "w", encoding="utf-8") as f: f.write(sitemap_content)
+
+        # 6. Уведомление Bing (IndexNow)
         requests.post("https://www.bing.com/indexnow", json={
             "host": "hesay.ru",
             "key": INDEXNOW_KEY,
@@ -125,8 +135,10 @@ def build_site():
             "urlList": [SITE_URL]
         })
         
-        print("Сайт обновлен и Bing уведомлен!")
+        print("Сайт успешно обновлен, все технические файлы (Sitemap, RSS) созданы, Bing уведомлен!")
 
-    except Exception as e: print(f"Ошибка: {e}")
+    except Exception as e:
+        print(f"Критическая ошибка при сборке: {e}")
 
-if __name__ == "__main__": build_site()
+if __name__ == "__main__":
+    build_site()
