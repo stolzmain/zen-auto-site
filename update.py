@@ -14,19 +14,26 @@ def build_site():
         SITE_KEYWORDS = "трейдинг для начинающих, как читать японские свечи, графический анализ, база знаний трейдера"
         INDEXNOW_KEY = "7252fab850c345419d3109a8f718aaad"
 
-        # --- ЛОГИКА ПОСТЕПЕННОГО ВЫПУСКА ---
-        # Точка отсчета (когда ты загрузила первую пачку статей)
+        # --- ОБНОВЛЕННАЯ ЛОГИКА ---
+        # 1. Сколько статей опубликовать СРАЗУ (твой текущий архив)
+        INITIAL_COUNT = 76 
+        
+        # 2. Точка отсчета для НОВЫХ статей (которые пойдут после 76-й)
+        # Ставим текущее время, чтобы очередь пошла с этого момента
         START_DATE = datetime(2026, 5, 10, 21, 0) 
-        HOURS_STEP = 2 # Интервал появления новых статей (в часах)
+        HOURS_STEP = 2 
         
-        # Считаем, сколько статей "созрело" на текущий момент
+        # Считаем, сколько новых статей "созрело"
         time_diff = datetime.now() - START_DATE
-        hours_passed = time_diff.total_seconds() / 3600
-        visible_count = max(1, int(hours_passed / HOURS_STEP) + 1)
+        hours_passed = max(0, time_diff.total_seconds() / 3600)
+        new_articles_count = int(hours_passed / HOURS_STEP)
         
-        # Берем нужное кол-во строк и переворачиваем их (новые сверху)
+        # Итоговое количество: база + новые по графику
+        visible_count = INITIAL_COUNT + new_articles_count
+        
+        # Берем строки и переворачиваем (самые новые из опубликованных — сверху)
         df_visible = df.head(visible_count).iloc[::-1]
-        # -----------------------------------
+        # ---------------------------
         
         # 2. Формируем HTML
         html = f"<!DOCTYPE html><html lang='ru'><head><meta charset='UTF-8'>"
