@@ -13,6 +13,23 @@ def build_site():
         SITE_DESC = "Понятный справочник по трейдингу для новичков. Учимся читать японские свечи, разбираем графический анализ и психологию рынка простыми словами."
         SITE_KEYWORDS = "трейдинг для начинающих, как читать японские свечи, графический анализ, база знаний трейдера"
         INDEXNOW_KEY = "7252fab850c345419d3109a8f718aaad"
+
+        # --- ЛОГИКА ПОСТЕПЕННОГО ВЫПУСКА ---
+        # Точка отсчета (когда ты загрузила пачку статей)
+        # Установили на 10 мая 2026, 20:00 (твое текущее время)
+        START_DATE = datetime(2026, 5, 10, 20, 0) 
+        HOURS_STEP = 2 # Выпускать по 1 новой статье каждые 2 часа
+        
+        # Считаем разницу во времени
+        time_diff = datetime.now() - START_DATE
+        hours_passed = time_diff.total_seconds() / 3600
+        
+        # Сколько строк из CSV уже можно показать (минимум 1)
+        visible_count = max(1, int(hours_passed / HOURS_STEP) + 1)
+        
+        # Берем только разрешенные строки
+        df_visible = df.head(visible_count)
+        # -----------------------------------
         
         # 2. Формируем HTML
         html = f"<!DOCTYPE html><html lang='ru'><head><meta charset='UTF-8'>"
@@ -29,7 +46,7 @@ def build_site():
         html += "<link rel='icon' href='favicon.ico' type='image/x-icon'>"
         html += f"<link rel='alternate' type='application/rss+xml' href='{SITE_URL}rss.xml'>"
         
-        # Стили (1024px и исправление скруглений)
+        # Стили (1024px и стыковка блоков)
         html += """
         <style>
             body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width:1024px; margin:40px auto; padding:20px; line-height:1.6; color:#333; background:#f0f2f5;}
@@ -90,7 +107,8 @@ def build_site():
         html += "<div class='container'>"
         html += f"<h1>Азбука трейдинга: база знаний</h1><ul>"
         
-        for _, row in df.iterrows():
+        # Выводим только видимые статьи
+        for _, row in df_visible.iterrows():
             t, l, d = str(row.get('Заголовок','')), str(row.get('Ссылка','#')), str(row.get('Анонс',''))
             if t:
                 html += f"<li><a href='{l}' class='title' target='_blank'>{t}</a><p>{d}</p>"
@@ -102,32 +120,27 @@ def build_site():
         html += "<a href='https://dzen.ru/2mom' class='footer-btn'>🤱 Мамам</a>"
         html += "</div></div></body></html>"
         
-        # Запись index.html
         with open("index.html", "w", encoding="utf-8") as f: f.write(html)
 
-        # 3. Robots.txt
+        # 3. Технические файлы (Sitemap, RSS, Robots)
+        s_now = datetime.now().strftime('%Y-%m-%d')
         with open("robots.txt", "w", encoding="utf-8") as f:
             f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}sitemap.xml\nRSS: {SITE_URL}rss.xml")
 
-        # 4. RSS.xml
+        # Sitemap (только для видимых страниц)
+        sitemap_content = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>{SITE_URL}</loc><lastmod>{s_now}</lastmod><changefreq>hourly</changefreq><priority>1.0</priority></url></urlset>'
+        with open("sitemap.xml", "w", encoding="utf-8") as f: f.write(sitemap_content)
+
+        # RSS (только для видимых страниц)
         rss_items = ""
-        for _, row in df.head(50).iterrows():
+        for _, row in df_visible.head(50).iterrows():
             clean_t = str(row.get('Заголовок','')).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
-            clean_d = str(row.get('Анонс','')).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
-            rss_items += f"<item><title>{clean_t}</title><link>{row.get('Ссылка')}</link><description>{clean_d}</description></item>"
+            rss_items += f"<item><title>{clean_t}</title><link>{row.get('Ссылка')}</link><description>{row.get('Анонс')}</description></item>"
         
         with open("rss.xml", "w", encoding="utf-8") as f:
             f.write(f'<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>{SITE_TITLE}</title><link>{SITE_URL}</link>{rss_items}</channel></rss>')
 
-        # 5. Sitemap.xml
-        s_now = datetime.now().strftime('%Y-%m-%d')
-        sitemap_content = f'''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>{SITE_URL}</loc><lastmod>{s_now}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
-</urlset>'''
-        with open("sitemap.xml", "w", encoding="utf-8") as f: f.write(sitemap_content)
-
-        # 6. Уведомление Bing (IndexNow)
+        # 4. Уведомление Bing (IndexNow)
         requests.post("https://www.bing.com/indexnow", json={
             "host": "hesay.ru",
             "key": INDEXNOW_KEY,
@@ -135,10 +148,8 @@ def build_site():
             "urlList": [SITE_URL]
         })
         
-        print("Сайт успешно обновлен, все технические файлы (Sitemap, RSS) созданы, Bing уведомлен!")
+        print(f"Сайт обновлен! Сейчас опубликовано статей: {len(df_visible)}")
 
-    except Exception as e:
-        print(f"Критическая ошибка при сборке: {e}")
+    except Exception as e: print(f"Ошибка: {e}")
 
-if __name__ == "__main__":
-    build_site()
+if __name__ == "__main__": build_site()
