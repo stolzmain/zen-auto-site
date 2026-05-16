@@ -161,6 +161,7 @@ def build_site():
             <a href="https://dzen.ru/mindbug" class="proj-btn" target="_blank">🧠 Психология</a>
             <a href="https://dzen.ru/2mom" class="proj-btn" target="_blank">🤱 Мамам</a>
             <div style="margin-left: auto; font-size: 0.8em; color: #777;">DuckDuckGo verified via IndexNow</div>
+            zdsf4xjgnevbm1w1
         </div>
         
         <script>
