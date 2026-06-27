@@ -9,6 +9,11 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
+    # Даем роботу права на запись, чтобы он мог сохранять обновленные файлы в репозиторий
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,24 +31,8 @@ jobs:
       - name: Run update script
         run: python update.py
 
-      - name: Sync files to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          # Если на Jino файлы должны лежать в public_html, лучше указать это явно
-          server-dir: / 
-          port: 21
-          # Добавляем время ожидания до 60 секунд
-          timeout: 60000
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github*
-            **/.github*/**
-            update.py
-            data.csv
-            README.md
-            .ftp-deploy-sync-state.json
+          commit_message: "Автоматическое обновление контента сайта"
+          file_pattern: 'index.html sitemap.xml rss.xml robots.txt'
