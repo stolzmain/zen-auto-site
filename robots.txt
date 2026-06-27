@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://stolzmain.github.io/hesay/sitemap.xml
+RSS: https://stolzmain.github.io/hesay/rss.xml
