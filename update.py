@@ -128,7 +128,10 @@ def build_site():
         """
 
         # Основной контент (Таймлайн лента)
-        html += "<div class='container'><h1>Азбука трейдинга: база знаний</h1><ul class='timeline'>"
+        html += "<div class='container'><h1>Азбука трейдинга: база знаний</h1>"
+        # 👇 НОВАЯ СТРОКА – подпись с датой и временем сборки
+        html += f"<div style='font-size:0.85em; color:#777; margin-bottom:30px;'>Обновлено через git: {datetime.now().strftime('%Y-%m-%d %H:%M')}</div>"
+        html += "<ul class='timeline'>"
         
         for _, row in df_visible.iterrows():
             t, l, d = str(row.get('Заголовок','')), str(row.get('Ссылка','#')), str(row.get('Анонс',''))
