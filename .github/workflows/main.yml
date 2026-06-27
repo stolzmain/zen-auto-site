@@ -3,36 +3,49 @@ name: Update Site
 on:
   workflow_dispatch:
   schedule:
-    # Запуск в начале каждого второго часа (00:00, 02:00, 04:00 и т.д. по UTC)
     - cron: '0 */2 * * *'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
-    # Даем роботу права на запись, чтобы он мог сохранять обновленные файлы в репозиторий
-    permissions:
-      contents: write
-
     steps:
+      # 1. Скачиваем ваш код из zen-auto-site
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. Скачиваем папку целевого сайта hesay в соседнюю папку "target_repo"
+      - name: Checkout target repo
+        uses: actions/checkout@v3
+        with:
+          repository: stolzmain/hesay
+          path: target_repo
+          token: ${{ secrets.SYNC_TOKEN }}
+
+      # 3. Настраиваем Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
+      # 4. Устанавливаем библиотеки
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pandas requests
 
+      # 5. Запускаем скрипт (он создаст файлы index.html и др. в корне zen-auto-site)
       - name: Run update script
         run: python update.py
 
-      - name: Commit and Push changes
+      # 6. Копируем готовые файлы в папку сайта
+      - name: Move generated files to target
+        run: |
+          cp index.html sitemap.xml rss.xml robots.txt target_repo/
+
+      # 7. Идем в папку сайта и отправляем изменения в hesay
+      - name: Push to hesay
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          repository: ./target_repo
           commit_message: "Автоматическое обновление контента сайта"
-          file_pattern: 'index.html sitemap.xml rss.xml robots.txt'
