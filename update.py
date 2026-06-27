@@ -8,7 +8,7 @@ def build_site():
         df = pd.read_csv("data.csv")
         df.columns = df.columns.str.strip()
         
-        SITE_URL = "https://hesay.ru/"
+        SITE_URL = "https://stolzmain.github.io/hesay/"
         SITE_TITLE = "Жить стабильно — Азбука начинающего трейдера и база знаний"
         SITE_DESC = "Понятный справочник по трейдингу для новичков. Учимся читать японские свечи, разбираем графический анализ и психологию рынка."
         SITE_KEYWORDS = "трейдинг для начинающих, как читать японские свечи, графический анализ, база знаний трейдера"
